@@ -26,7 +26,7 @@ export function AppSidebar() {
               </Button>
             ) : (
               <Button variant={"ghost"} onClick={() => setTheme("light")}>
-                <Moon />{" "}
+                <Moon />
               </Button>
             )}
           </div>
