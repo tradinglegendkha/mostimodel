@@ -9,6 +9,7 @@ import { db } from "@/config/FirebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { DefaultModel } from "@/shared/AiModel";
 import { AiSelectedModelContext } from "@/context/AiSelectedModelContext";
+import { UserDetailContext } from "@/context/UserDetailContext";
 
 function Provider({ children, ...props }) {
   const { user } = useUser();
@@ -28,7 +29,7 @@ function Provider({ children, ...props }) {
 
     if (userSnap.exists()) {
       console.log("Existing User");
-      const userinfo = userSnap.data();
+      const userInfo = userSnap.data();
       setAiSelectedModels(userInfo?.selectedModelPref);
       setUserDetail(userInfo);
       return;
@@ -55,7 +56,6 @@ function Provider({ children, ...props }) {
       enableSystem
       disableTransitionOnChange
     >
-      {" "}
       <UserDetailContext.Provider value={{ userDetail, setUserDetail }}>
         <AiSelectedModelContext.Provider
           value={{ aiSelectedModels, setAiSelectedModels }}
