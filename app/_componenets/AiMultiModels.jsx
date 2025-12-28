@@ -20,6 +20,8 @@ import { useUser } from "@clerk/nextjs";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/config/FirebaseConfig";
 import { Loader } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 function AiMultiModels() {
   const { user } = useUser();
@@ -31,6 +33,17 @@ function AiMultiModels() {
     setAiModelList((prev) =>
       prev.map((m) => (m.model === model ? { ...m, enable: value } : m))
     );
+
+    // setAiSelectedModels((prev) =>
+    //   prev.map((m) => (m.model === model ? { ...m, enable: value } : m))
+    // );
+    setAiSelectedModels((prev) => ({
+      ...prev,
+      [model]: {
+        ...(prev?.[model] ?? {}),
+        enable: value,
+      },
+    }));
   };
 
   const onSelecteValue = async (parentModel, value) => {
@@ -55,7 +68,7 @@ function AiMultiModels() {
     <div className="flex flex-1 h-[75vh] border-b">
       {aiModelList.map((model) => (
         <div
-          key={model.model} // ✅ correct key
+          key={model.model}
           className={`flex flex-col border-r h-full overflow-auto 
             ${model.enable ? `flex-1 min-w-[400px]` : `w-[100px] flex-none`}`}
         >
@@ -141,34 +154,40 @@ function AiMultiModels() {
               </Button>
             </div>
           )}
-          <div className="flex-1 p-4">
-            <div className="flex-1 p-4 space-y-2 ">
-              {messages[model.model]?.map((m, i) => (
-                <div
-                  className={`p-2 rounded-md ${
-                    m.role == "user"
-                      ? "bg-blue-100 text-blue-900"
-                      : "bg-gray-100 text-gray-900"
-                  }`}
-                >
-                  {m.role == "assistant" && (
-                    <span className="text-sm text-gray-800">
-                      {m.model ?? model.model}
-                    </span>
-                  )}
-                  <div className="flex gap-3 items-center">
-                    {m.content == "loading" && (
-                      <>
-                        <Loader className="animate-spin" />
-                        <span>Thinking...</span>
-                      </>
+          {model.enable && (
+            <div className="flex-1 p-4">
+              <div className="flex-1 p-4 space-y-2 ">
+                {messages[model.model]?.map((m, i) => (
+                  <div
+                    className={`p-2 rounded-md ${
+                      m.role == "user"
+                        ? "bg-blue-100 text-blue-900"
+                        : "bg-gray-100 text-gray-900"
+                    }`}
+                  >
+                    {m.role == "assistant" && (
+                      <span className="text-sm text-gray-800">
+                        {m.model ?? model.model}
+                      </span>
                     )}
-                    {m.content !== "loading" && <h2>{m.content}</h2>}
+                    <div className="flex gap-3 items-center">
+                      {m.content == "loading" && (
+                        <>
+                          <Loader className="animate-spin" />
+                          <span>Thinking...</span>
+                        </>
+                      )}
+                      {m.content !== "loading" && (
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {m.content}
+                        </ReactMarkdown>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       ))}
     </div>

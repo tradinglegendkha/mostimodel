@@ -15,11 +15,13 @@ function ChatInputBox() {
 
     setMessages((prev) => {
       const updated = { ...prev };
-      Object.keys(aiSelectedModels).forEach((modelKey) => {
-        updated[modelKey] = [
-          ...(updated[modelKey] ?? []),
-          { role: "user", content: userInput },
-        ];
+      Object.keys(aiSelectedModels).forEach((modelKey, modelInfo) => {
+        if (aiSelectedModels[modelKey].enable) {
+          updated[modelKey] = [
+            ...(updated[modelKey] ?? []),
+            { role: "user", content: userInput },
+          ];
+        }
       });
       return updated;
     });
@@ -29,8 +31,8 @@ function ChatInputBox() {
 
     Object.entries(aiSelectedModels).forEach(
       async ([parentModel, modelInfo]) => {
-        if (!modelInfo.modelId) return;
-
+        if (!modelInfo.modelId || aiSelectedModels[parentModel].enable == false)
+          return;
         setMessages((prev) => ({
           ...prev,
           [parentModel]: [
