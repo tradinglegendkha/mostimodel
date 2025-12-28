@@ -99,7 +99,8 @@ function ChatInputBox() {
           <input
             type="text"
             placeholder="Ask me anything"
-            className="border-0 outline-none"
+            className="border-0 outline-none w-full"
+            value={userInput}
             onChange={(event) => setUserInput(event.target.value)}
           />
           <div className="mt-3 flex justify-between items-center">

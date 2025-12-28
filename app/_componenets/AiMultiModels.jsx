@@ -19,6 +19,7 @@ import { AiSelectedModelContext } from "@/context/AiSelectedModelContext";
 import { useUser } from "@clerk/nextjs";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/config/FirebaseConfig";
+import { Loader } from "lucide-react";
 
 function AiMultiModels() {
   const { user } = useUser();
@@ -45,6 +46,10 @@ function AiMultiModels() {
     const docRef = doc(db, "users", user?.primaryEmailAddress?.emailAddress);
     await updateDoc(docRef, { selectedModelPref: updated });
   };
+
+  useEffect(() => {
+    console.log(messages);
+  }, [messages]);
 
   return (
     <div className="flex flex-1 h-[75vh] border-b">
@@ -138,7 +143,7 @@ function AiMultiModels() {
           )}
           <div className="flex-1 p-4">
             <div className="flex-1 p-4 space-y-2 ">
-              {/* {messages[model.model]?.map((m, i) => (
+              {messages[model.model]?.map((m, i) => (
                 <div
                   className={`p-2 rounded-md ${
                     m.role == "user"
@@ -147,11 +152,21 @@ function AiMultiModels() {
                   }`}
                 >
                   {m.role == "assistant" && (
-                    <span>{m.model ?? model.model}</span>
+                    <span className="text-sm text-gray-800">
+                      {m.model ?? model.model}
+                    </span>
                   )}
-                  {m.content}
+                  <div className="flex gap-3 items-center">
+                    {m.content == "loading" && (
+                      <>
+                        <Loader className="animate-spin" />
+                        <span>Thinking...</span>
+                      </>
+                    )}
+                    {m.content !== "loading" && <h2>{m.content}</h2>}
+                  </div>
                 </div>
-              ))} */}
+              ))}
             </div>
           </div>
         </div>
