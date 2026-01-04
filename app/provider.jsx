@@ -6,7 +6,7 @@ import AppHeader from "./_componenets/AppHeader";
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { db } from "@/config/FirebaseConfig";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { DefaultModel } from "@/shared/AiModel";
 import { AiSelectedModelContext } from "@/context/AiSelectedModelContext";
 import { UserDetailContext } from "@/context/UserDetailContext";
@@ -21,6 +21,19 @@ function Provider({ children, ...props }) {
       CreateNewUser();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (user && user.primaryEmailAddress?.emailAddress && aiSelectedModels) {
+      updateAiModelSelectionPref();
+    }
+  }, [aiSelectedModels, user]);
+
+  const updateAiModelSelectionPref = async () => {
+    const docRef = doc(db, "users", user?.primaryEmailAddress?.emailAddress);
+    await updateDoc(docRef, {
+      selectedModelPref: aiSelectedModels,
+    });
+  };
 
   //waits for the firebase db and confirms if the user exist or not
   //if the user exists, saves the users last picked models

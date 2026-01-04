@@ -17,8 +17,6 @@ import { LockIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AiSelectedModelContext } from "@/context/AiSelectedModelContext";
 import { useUser } from "@clerk/nextjs";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "@/config/FirebaseConfig";
 import { Loader } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -46,23 +44,22 @@ function AiMultiModels() {
     }));
   };
 
+  console.log(aiSelectedModels);
+
   const onSelecteValue = async (parentModel, value) => {
-    const updated = {
-      ...aiSelectedModels,
+    // const updated = {
+    //   ...aiSelectedModels,
+    //   [parentModel]: {
+    //     modelId: value,
+    //   },
+    // };
+    setAiSelectedModels((prev) => ({
+      ...prev,
       [parentModel]: {
         modelId: value,
       },
-    };
-
-    setAiSelectedModels(updated);
-
-    const docRef = doc(db, "users", user?.primaryEmailAddress?.emailAddress);
-    await updateDoc(docRef, { selectedModelPref: updated });
+    }));
   };
-
-  useEffect(() => {
-    console.log(messages);
-  }, [messages]);
 
   return (
     <div className="flex flex-1 h-[75vh] border-b">
