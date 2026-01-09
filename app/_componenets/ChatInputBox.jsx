@@ -4,14 +4,35 @@ import { Paperclip, Mic, Send } from "lucide-react";
 import AiMultiModels from "./AiMultiModels";
 import { AiSelectedModelContext } from "@/context/AiSelectedModelContext";
 import axios from "axios";
+import { v4 as uuidv4 } from "uuid";
+import { db } from "@/config/FirebaseConfig";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { useUser } from "@clerk/nextjs";
+import { useSearchParams } from "next/navigation";
 
 function ChatInputBox() {
-  const [userInput, setUserInput] = useState();
+  const [userInput, setUserInput] = useState("");
+  const { user } = useUser();
   const { aiSelectedModels, setAiSelectedModels, messages, setMessages } =
     useContext(AiSelectedModelContext);
 
+  const [chatId, setChatId] = useState();
+  const params = useSearchParams();
+
+  //changes chatId based on URL params
+  useEffect(() => {
+    const chatId_ = params.get("chatId");
+    if (chatId_) {
+      setChatId(chatId_);
+      GetMessages(chatId_);
+    } else {
+      setMessages([]);
+      setChatId(uuidv4());
+    }
+  }, [params]);
+
   const handleSend = async () => {
-    if (!userInput.trim()) return;
+    if (!userInput?.trim()) return;
 
     setMessages((prev) => {
       const updated = { ...prev };
@@ -89,6 +110,33 @@ function ChatInputBox() {
         }
       }
     );
+  };
+
+  useEffect(() => {
+    if (messages && chatId) {
+      SaveMessages();
+    }
+  }, [messages, chatId]);
+
+  const SaveMessages = async () => {
+    if (!user?.primaryEmailAddress?.emailAddress) return;
+    const docRef = doc(db, "chatHistory", chatId);
+    await setDoc(docRef, {
+      chatId: chatId,
+      userEmail: user?.primaryEmailAddress?.emailAddress,
+      messages: messages,
+      lastUpdated: Date.now(),
+    });
+  };
+
+  const GetMessages = async () => {
+    console.log("INSIDE", chatId);
+    if (!user?.primaryEmailAddress?.emailAddress) return;
+    const docRef = doc(db, "chatHistory", chatId);
+    const docSnap = await getDoc(docRef);
+    console.log(docSnap.data());
+    const docData = docSnap.data();
+    setMessages(docData?.messages || {});
   };
 
   return (

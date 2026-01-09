@@ -29,6 +29,7 @@ function Provider({ children, ...props }) {
   }, [aiSelectedModels, user]);
 
   const updateAiModelSelectionPref = async () => {
+    if (!user?.primaryEmailAddress?.emailAddress) return;
     const docRef = doc(db, "users", user?.primaryEmailAddress?.emailAddress);
     await updateDoc(docRef, {
       selectedModelPref: aiSelectedModels,

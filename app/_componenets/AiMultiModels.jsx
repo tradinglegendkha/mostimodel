@@ -20,6 +20,7 @@ import { useUser } from "@clerk/nextjs";
 import { Loader } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useSearchParams } from "next/navigation";
 
 function AiMultiModels() {
   const { user } = useUser();
@@ -174,9 +175,9 @@ function AiMultiModels() {
                           <span>Thinking...</span>
                         </>
                       )}
-                      {m.content !== "loading" && (
+                      {m?.content !== "loading" && m?.content && (
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {m.content}
+                          {m?.content}
                         </ReactMarkdown>
                       )}
                     </div>

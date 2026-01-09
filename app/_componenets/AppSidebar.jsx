@@ -8,14 +8,55 @@ import {
 } from "@/components/ui/sidebar";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, User2, Bolt } from "lucide-react";
 import { SignInButton, useUser } from "@clerk/nextjs";
-import { User2, Bolt } from "lucide-react";
 import UsageCreditProgress from "./UsageCreditProgress";
+import { doc, query, where } from "firebase/firestore";
+import { db } from "@/config/FirebaseConfig";
+import { useEffect, useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import moment from "moment";
+import Link from "next/link";
 
 export function AppSidebar() {
   const { user } = useUser();
   const { theme, setTheme } = useTheme();
+  const [chatHistory, setChatHistory] = useState([]);
+
+  useEffect(() => {
+    user && GetChatHistory();
+  }, [user]);
+
+  const GetChatHistory = async () => {
+    const q = query(
+      collection(db, "chatHistory"),
+      where("userEmail", "==", user?.primaryEmailAddress?.emailAddress)
+    );
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach((doc) => {
+      console.log(doc.id, doc.data());
+      setChatHistory((prev) => [...prev, doc.data()]);
+    });
+  };
+
+  const GetLastUserMessageFromChat = (chat) => {
+    const allMessages = Object.values(chat.messages).flat();
+    const userMessages = allMessages.filter((msg) => msg.role == "user");
+    const lastUserMsg =
+      userMessages.length > 0
+        ? userMessages[userMessages.length - 1].content
+        : null;
+    const lastUpdated = chat.lastUpdated || Date.now();
+    const formattedDate = moment(lastUpdated).fromNow();
+
+    return {
+      chatId: chat.chatId,
+      message: lastUserMsg,
+      lastMsgDate: formattedDate,
+    };
+  };
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -35,9 +76,11 @@ export function AppSidebar() {
             )}
           </div>
           {user ? (
-            <Button className="mt-7 w-full" size="lg">
-              + New Chat
-            </Button>
+            <Link href={"/"}>
+              <Button className="mt-7 w-full" size="lg">
+                + New Chat
+              </Button>
+            </Link>
           ) : (
             <SignInButton>
               <Button className="mt-7 w-full" size="lg">
@@ -56,6 +99,23 @@ export function AppSidebar() {
                 Start chatting with multiple AI models
               </p>
             )}
+            {chatHistory.map((chat, index) => (
+              <Link
+                href={"?chatId=" + chat.chatId}
+                key={index}
+                className="mt-2"
+              >
+                <div className="hover:bg-gray-100 p-3">
+                  <h2 className="text-sm text-gray-800 cursor-pointer">
+                    {GetLastUserMessageFromChat(chat).lastMsgDate}
+                  </h2>
+                  <h2 className="text-lg line-clamp-1">
+                    {GetLastUserMessageFromChat(chat).message}
+                  </h2>
+                </div>
+                <hr className="my-1" />
+              </Link>
+            ))}
           </div>
         </SidebarGroup>
         <SidebarGroup />
