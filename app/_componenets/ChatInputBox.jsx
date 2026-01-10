@@ -113,9 +113,8 @@ function ChatInputBox() {
   };
 
   useEffect(() => {
-    if (messages) {
-      SaveMessages();
-    }
+    if (!messages || messages.length === 0) return;
+    SaveMessages();
   }, [messages]);
 
   const SaveMessages = async () => {
