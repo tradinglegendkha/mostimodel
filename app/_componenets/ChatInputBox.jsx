@@ -113,30 +113,33 @@ function ChatInputBox() {
   };
 
   useEffect(() => {
-    if (messages && chatId) {
+    if (messages) {
       SaveMessages();
     }
-  }, [messages, chatId]);
+  }, [messages]);
 
   const SaveMessages = async () => {
-    if (!user?.primaryEmailAddress?.emailAddress) return;
-    const docRef = doc(db, "chatHistory", chatId);
-    await setDoc(docRef, {
-      chatId: chatId,
-      userEmail: user?.primaryEmailAddress?.emailAddress,
-      messages: messages,
+    if (!chatId || !user?.primaryEmailAddress?.emailAddress) return;
+
+    await setDoc(doc(db, "chatHistory", chatId), {
+      chatId,
+      userEmail: user.primaryEmailAddress.emailAddress,
+      messages,
       lastUpdated: Date.now(),
     });
   };
 
-  const GetMessages = async () => {
-    console.log("INSIDE", chatId);
-    if (!user?.primaryEmailAddress?.emailAddress) return;
+  const GetMessages = async (chatId) => {
     const docRef = doc(db, "chatHistory", chatId);
     const docSnap = await getDoc(docRef);
-    console.log(docSnap.data());
+
+    if (!docSnap.exists()) {
+      setMessages([]);
+      return;
+    }
+
     const docData = docSnap.data();
-    setMessages(docData?.messages || {});
+    setMessages(docData.messages ?? []);
   };
 
   return (

@@ -41,19 +41,24 @@ export function AppSidebar() {
   };
 
   const GetLastUserMessageFromChat = (chat) => {
-    const allMessages = Object.values(chat.messages).flat();
-    const userMessages = allMessages.filter((msg) => msg.role == "user");
-    const lastUserMsg =
-      userMessages.length > 0
-        ? userMessages[userMessages.length - 1].content
-        : null;
+    const allMessages = Object.values(chat?.messages || {}).flat();
+    const userMessages = allMessages.filter((msg) => msg.role === "user");
+
+    if (userMessages.length === 0) {
+      return {
+        chatId: chat.chatId,
+        message: null,
+        lastMsgDate: moment(chat.lastUpdated || Date.now()).fromNow(),
+      };
+    }
+
+    const lastUserMsg = userMessages[userMessages.length - 1].content;
     const lastUpdated = chat.lastUpdated || Date.now();
-    const formattedDate = moment(lastUpdated).fromNow();
 
     return {
       chatId: chat.chatId,
       message: lastUserMsg,
-      lastMsgDate: formattedDate,
+      lastMsgDate: moment(lastUpdated).fromNow(),
     };
   };
 
