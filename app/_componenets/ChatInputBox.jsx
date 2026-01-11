@@ -34,6 +34,20 @@ function ChatInputBox() {
   const handleSend = async () => {
     if (!userInput?.trim()) return;
 
+    //Call only if the user is free
+    //Deducts and checks tokens
+    const result = await axios.post("/api/user-remaining-msg", {
+      token: 1,
+    });
+
+    const remainingToken = result.data.remainingToken;
+    if (remainingToken <= 0) {
+      console.log("Limit Exceed");
+      return;
+    }
+
+    //Adds user message to all enabled models
+
     setMessages((prev) => {
       const updated = { ...prev };
       Object.keys(aiSelectedModels).forEach((modelKey, modelInfo) => {

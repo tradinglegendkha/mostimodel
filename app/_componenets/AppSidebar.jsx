@@ -13,19 +13,28 @@ import { SignInButton, useUser } from "@clerk/nextjs";
 import UsageCreditProgress from "./UsageCreditProgress";
 import { doc, query, where } from "firebase/firestore";
 import { db } from "@/config/FirebaseConfig";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import moment from "moment";
+import axios from "axios";
 import Link from "next/link";
+import { AiSelectedModelContext } from "@/context/AiSelectedModelContext";
 
 export function AppSidebar() {
   const { user } = useUser();
   const { theme, setTheme } = useTheme();
   const [chatHistory, setChatHistory] = useState([]);
+  const [freeMsgCount, setFreeMsgCount] = useState(0);
+  const { aiSelectedModels, setAiSelectedModels, messages, setMessages } =
+    useContext(AiSelectedModelContext);
 
   useEffect(() => {
     user && GetChatHistory();
   }, [user]);
+
+  useEffect(() => {
+    GetRemainingTokenMsgs();
+  }, [messages]);
 
   const GetChatHistory = async () => {
     const q = query(
@@ -60,6 +69,12 @@ export function AppSidebar() {
       message: lastUserMsg,
       lastMsgDate: moment(lastUpdated).fromNow(),
     };
+  };
+
+  const GetRemainingTokenMsgs = async () => {
+    const result = await axios.post("/api/user-remaining-msg", { token: 0 });
+    console.log(result);
+    setFreeMsgCount(result.data.remainingToken);
   };
 
   return (
@@ -135,7 +150,7 @@ export function AppSidebar() {
             </SignInButton>
           ) : (
             <div>
-              <UsageCreditProgress />
+              <UsageCreditProgress remainingToken={freeMsgCount} />
               <Button className="w-full mb-3">
                 <Bolt />
                 Upgrade Plan
