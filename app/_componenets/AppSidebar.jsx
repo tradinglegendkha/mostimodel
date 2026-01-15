@@ -19,6 +19,7 @@ import moment from "moment";
 import axios from "axios";
 import Link from "next/link";
 import { AiSelectedModelContext } from "@/context/AiSelectedModelContext";
+import PricingModel from "./PricingModel";
 
 export function AppSidebar() {
   const { user } = useUser();
@@ -151,10 +152,12 @@ export function AppSidebar() {
           ) : (
             <div>
               <UsageCreditProgress remainingToken={freeMsgCount} />
-              <Button className="w-full mb-3">
-                <Bolt />
-                Upgrade Plan
-              </Button>
+              <PricingModel>
+                <Button className="w-full mb-3">
+                  <Bolt />
+                  Upgrade Plan
+                </Button>
+              </PricingModel>
               <Button className="flex" variant={"ghost"}>
                 <User2 /> <h2>Settings</h2>
               </Button>
