@@ -40,7 +40,7 @@ export function AppSidebar() {
   const GetChatHistory = async () => {
     const q = query(
       collection(db, "chatHistory"),
-      where("userEmail", "==", user?.primaryEmailAddress?.emailAddress)
+      where("userEmail", "==", user?.primaryEmailAddress?.emailAddress),
     );
     const querySnapshot = await getDocs(q);
 
@@ -153,12 +153,12 @@ export function AppSidebar() {
             <div>
               <UsageCreditProgress remainingToken={freeMsgCount} />
               <PricingModel>
-                <Button className="w-full mb-3">
+                <Button className="w-full mb-3 cursor-pointer">
                   <Bolt />
                   Upgrade Plan
                 </Button>
               </PricingModel>
-              <Button className="flex" variant={"ghost"}>
+              <Button className="flex cursor-pointer" variant={"ghost"}>
                 <User2 /> <h2>Settings</h2>
               </Button>
             </div>

@@ -122,7 +122,7 @@ function ChatInputBox() {
             ],
           }));
         }
-      }
+      },
     );
   };
 
@@ -168,6 +168,11 @@ function ChatInputBox() {
             className="border-0 outline-none w-full"
             value={userInput}
             onChange={(event) => setUserInput(event.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSend();
+              }
+            }}
           />
           <div className="mt-3 flex justify-between items-center">
             <Button className="" variant="ghost" size="icon">
@@ -177,7 +182,11 @@ function ChatInputBox() {
               <Button variant="ghost" size="icon">
                 <Mic />
               </Button>
-              <Button size="icon" className="bg-red-900" onClick={handleSend}>
+              <Button
+                size="icon"
+                className="bg-red-900 cursor-pointer"
+                onClick={handleSend}
+              >
                 <Send />
               </Button>
             </div>

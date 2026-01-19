@@ -12,7 +12,7 @@ import {
 function PricingModel({ children }) {
   return (
     <Dialog>
-      <DialogTrigger>{children}</DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className={"min-w-4xl"}>
         <DialogHeader>
           <DialogTitle>Upgrade Plan</DialogTitle>
